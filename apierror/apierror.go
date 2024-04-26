@@ -1,0 +1,34 @@
+package apierror
+
+import "net/http"
+
+type ApiError interface {
+	Error() string
+	Status() int
+}
+
+type apiError struct {
+	err    string
+	status int
+}
+
+func EmailAlreadyTaken() error {
+	return &apiError{err: "Email already taken", status: http.StatusBadRequest}
+}
+
+func InvalidRequestBody(err string) error {
+	return &apiError{err: err, status: http.StatusBadRequest}
+}
+
+// TODO: better name?
+func InternalServerError(err error) error {
+	return &apiError{err: err.Error(), status: http.StatusInternalServerError}
+}
+
+func (a *apiError) Error() string {
+	return a.err
+}
+
+func (a *apiError) Status() int {
+	return a.status
+}
