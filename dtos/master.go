@@ -12,3 +12,12 @@ type CreateMasterResponseDto struct {
 	Email        string `json:"email"`
 	PasswordHash string `json:"password_hash"`
 }
+
+type AuthenticateRequestDto struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type AuthenticateResponseDto struct {
+	AccessToken string `json:"access_token"`
+}

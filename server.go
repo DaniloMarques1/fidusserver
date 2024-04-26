@@ -1,26 +1,29 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/danilomarques1/fidusserver/handlers"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type FidusServer struct {
-	mux  *http.ServeMux
-	port string
+	router chi.Router
+	port   string
 }
 
 func NewFidusServer(port string) *FidusServer {
-	return &FidusServer{mux: http.NewServeMux(), port: port}
+	return &FidusServer{router: chi.NewRouter(), port: port}
 }
 
 func (f *FidusServer) Start() error {
-	f.mux.HandleFunc("POST /fidus/master/register", handlers.CreateMaster)
+	f.router.Use(middleware.Logger)
 
-	f.mux.HandleFunc("PUT /auth", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: validation and return a jwt token
-	})
+	f.router.Post("/fidus/master/register", handlers.CreateMaster)
+	f.router.Post("/fidus/master/authenticate", handlers.AuthenticateMaster)
 
-	return http.ListenAndServe(f.port, f.mux)
+	log.Printf("Server running at %v\n", f.port)
+	return http.ListenAndServe(f.port, f.router)
 }

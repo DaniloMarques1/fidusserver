@@ -25,6 +25,14 @@ func InternalServerError(err error) error {
 	return &apiError{err: err.Error(), status: http.StatusInternalServerError}
 }
 
+func MasterEmailNotFound() error {
+	return &apiError{err: "incorrect email", status: http.StatusBadRequest}
+}
+
+func MasterIncorrectPassword() error {
+	return &apiError{err: "incorrect password", status: http.StatusBadRequest}
+}
+
 func (a *apiError) Error() string {
 	return a.err
 }
