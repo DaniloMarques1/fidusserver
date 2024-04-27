@@ -37,10 +37,6 @@ func MasterNotFound() error {
 	return &apiError{err: "master not found for the given token", status: http.StatusBadRequest}
 }
 
-func Forbidden() error {
-	return &apiError{err: "Forbidden", status: http.StatusForbidden}
-}
-
 func (a *apiError) Error() string {
 	return a.err
 }

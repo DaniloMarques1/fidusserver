@@ -27,5 +27,5 @@ func StorePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Success(w, nil, http.StatusNoContent)
+	response.Json(w, http.StatusNoContent, nil)
 }

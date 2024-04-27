@@ -34,7 +34,7 @@ func CreateMaster(w http.ResponseWriter, r *http.Request) {
 		PasswordHash: master.PasswordHash,
 	}
 
-	response.Success(w, respBody, http.StatusCreated)
+	response.Json(w, http.StatusCreated, respBody)
 }
 
 func AuthenticateMaster(w http.ResponseWriter, r *http.Request) {
@@ -55,5 +55,5 @@ func AuthenticateMaster(w http.ResponseWriter, r *http.Request) {
 
 	resp := &dtos.AuthenticateResponseDto{AccessToken: accessToken}
 
-	response.Success(w, resp, http.StatusOK)
+	response.Json(w, http.StatusOK, resp)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/danilomarques1/fidusserver/apierror"
 )
 
-func Success(w http.ResponseWriter, body any, status int) {
+func Json(w http.ResponseWriter, status int, body any) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(body)
 }
@@ -19,8 +19,8 @@ type ErrorResponseDto struct {
 func Error(w http.ResponseWriter, err error) {
 	switch v := err.(type) {
 	case apierror.ApiError:
-		Success(w, ErrorResponseDto{Message: v.Error()}, v.Status())
+		Json(w, v.Status(), ErrorResponseDto{Message: v.Error()})
 	default:
-		Success(w, ErrorResponseDto{Message: err.Error()}, http.StatusInternalServerError)
+		Json(w, http.StatusInternalServerError, ErrorResponseDto{Message: err.Error()})
 	}
 }

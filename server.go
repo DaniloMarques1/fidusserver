@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/danilomarques1/fidusserver/apierror"
 	"github.com/danilomarques1/fidusserver/handlers"
 	"github.com/danilomarques1/fidusserver/response"
 	"github.com/danilomarques1/fidusserver/token"
@@ -26,12 +25,16 @@ func NewFidusServer(port string) *FidusServer {
 func (f *FidusServer) Start() error {
 	f.router.Use(middleware.Logger)
 
-	f.router.Post("/fidus/master/register", handlers.CreateMaster)
-	f.router.Post("/fidus/master/authenticate", handlers.AuthenticateMaster)
+	f.router.Route("/fidus/master", func(router chi.Router) {
+		router.Post("/register", handlers.CreateMaster)
+		router.Post("/authenticate", handlers.AuthenticateMaster)
+	})
 
-	f.router.Group(func(passwordRouter chi.Router) {
-		passwordRouter.Use(AuthMiddleware)
-		passwordRouter.Post("/fidus/password/store", handlers.StorePassword)
+	f.router.Route("/fidus/password", func(router chi.Router) {
+		router.Group(func(passwordRouter chi.Router) {
+			passwordRouter.Use(AuthMiddleware)
+			passwordRouter.Post("/store", handlers.StorePassword)
+		})
 	})
 
 	log.Printf("Server running at %v\n", f.port)
@@ -42,18 +45,18 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if len(authHeader) == 0 {
-			response.Error(w, apierror.Forbidden())
+			response.Json(w, http.StatusForbidden, nil)
 			return
 		}
 		splitedAuthHeader := strings.Split(authHeader, " ")
 		if len(splitedAuthHeader) < 2 {
-			response.Error(w, apierror.Forbidden())
+			response.Json(w, http.StatusForbidden, nil)
 			return
 		}
 		tokenStr := splitedAuthHeader[1]
 		masterId, err := token.ParseToken(tokenStr)
 		if err != nil {
-			response.Error(w, apierror.Forbidden())
+			response.Json(w, http.StatusForbidden, nil)
 			return
 		}
 
