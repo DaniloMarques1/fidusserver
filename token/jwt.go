@@ -8,8 +8,8 @@ import (
 )
 
 type masterClaims struct {
-	MasterId    string
-	MasterEmail string
+	MasterId    string `json:"master_id"`
+	MasterEmail string `json:"master_email"`
 	jwt.RegisteredClaims
 }
 
@@ -27,6 +27,7 @@ func GenerateToken(masterId, masterEmail string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	log.Printf("Token %v\n", signedToken)
 	return signedToken, nil
 }
 

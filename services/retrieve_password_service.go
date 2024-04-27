@@ -1,6 +1,12 @@
 package services
 
-import "github.com/danilomarques1/fidusserver/models"
+import (
+	"database/sql"
+	"errors"
+
+	"github.com/danilomarques1/fidusserver/apierror"
+	"github.com/danilomarques1/fidusserver/models"
+)
 
 type RetrievePasswordService interface {
 	Execute(string, string) (*models.Password, error)
@@ -18,6 +24,9 @@ func NewRetrievePasswordService() RetrievePasswordService {
 func (retrieveService *retrievePasswordService) Execute(masterId, key string) (*models.Password, error) {
 	password, err := retrieveService.passwordDAO.FindOne(masterId, key)
 	if err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			return nil, apierror.PasswordNotFound()
+		}
 		return nil, err
 	}
 	return password, nil
