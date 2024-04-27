@@ -31,10 +31,8 @@ func (f *FidusServer) Start() error {
 	})
 
 	f.router.Route("/fidus/password", func(router chi.Router) {
-		router.Group(func(passwordRouter chi.Router) {
-			passwordRouter.Use(AuthMiddleware)
-			passwordRouter.Post("/store", handlers.StorePassword)
-		})
+		router.Use(AuthMiddleware)
+		router.Post("/store", handlers.StorePassword)
 	})
 
 	log.Printf("Server running at %v\n", f.port)
@@ -60,7 +58,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "masterId", masterId) // TODO: get the master id
+		ctx := context.WithValue(r.Context(), "masterId", masterId)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
