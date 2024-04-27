@@ -10,7 +10,7 @@ import (
 )
 
 type StorePasswordService interface {
-	Execute(string, *dtos.StorePasswordRequest) error
+	Execute(string, *dtos.StorePasswordRequestDto) error
 }
 
 type storePasswordService struct {
@@ -24,7 +24,7 @@ func NewStorePasswordService() StorePasswordService {
 	return &storePasswordService{masterDAO, passwordDAO}
 }
 
-func (passwordService *storePasswordService) Execute(masterId string, req *dtos.StorePasswordRequest) error {
+func (passwordService *storePasswordService) Execute(masterId string, req *dtos.StorePasswordRequestDto) error {
 	if _, err := passwordService.masterDAO.FindById(masterId); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return apierror.MasterNotFound()

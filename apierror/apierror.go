@@ -37,6 +37,10 @@ func MasterNotFound() error {
 	return &apiError{err: "master not found for the given token", status: http.StatusBadRequest}
 }
 
+func InvalidKey() error {
+	return &apiError{err: "Invalid key", status: http.StatusBadRequest}
+}
+
 func (a *apiError) Error() string {
 	return a.err
 }

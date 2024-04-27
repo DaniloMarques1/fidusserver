@@ -33,6 +33,7 @@ func (f *FidusServer) Start() error {
 	f.router.Route("/fidus/password", func(router chi.Router) {
 		router.Use(AuthMiddleware)
 		router.Post("/store", handlers.StorePassword)
+		router.Get("/retrieve", handlers.RetrievePassword)
 	})
 
 	log.Printf("Server running at %v\n", f.port)

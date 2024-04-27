@@ -1,6 +1,12 @@
 package dtos
 
-type StorePasswordRequest struct {
-	Key      string
-	Password string
+type StorePasswordRequestDto struct {
+	Key      string `json:"key"`
+	Password string `json:"password"`
+}
+
+type RetrievePasswordResponseDto struct {
+	MasterId string `json:"master_id"`
+	Key      string `json:"key"`
+	Password string `json:"password"`
 }

@@ -39,14 +39,14 @@ func (passwordDAO *passwordDAODatabase) Save(password *Password) error {
 	return nil
 }
 
-func (passwordDAO *passwordDAODatabase) FindOne(masterid, key string) (*Password, error) {
-	stmt, err := passwordDAO.db.Prepare(`select master_id, key, password from fidus_password where master_id = $1 and key = $2ao`)
+func (passwordDAO *passwordDAODatabase) FindOne(masterId, key string) (*Password, error) {
+	stmt, err := passwordDAO.db.Prepare(`select master_id, key, password from fidus_password where master_id = $1 and key = $2`)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 	password := &Password{}
-	if err := stmt.QueryRow().Scan(&password.MasterId, &password.Key, &password.PasswordValue); err != nil {
+	if err := stmt.QueryRow(masterId, key).Scan(&password.MasterId, &password.Key, &password.PasswordValue); err != nil {
 		return nil, err
 	}
 	return password, nil
