@@ -12,7 +12,11 @@ import (
 )
 
 func StorePassword(w http.ResponseWriter, r *http.Request) {
-	masterId := r.Context().Value("masterId").(string) // TODO: protect it
+	masterId, ok := r.Context().Value("masterId").(string)
+	if !ok {
+		response.Json(w, http.StatusForbidden, nil)
+		return
+	}
 	body := &dtos.StorePasswordRequestDto{}
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		log.Printf("Error parsing json body %v\n", err)
@@ -20,7 +24,6 @@ func StorePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	storePasswordService := services.NewStorePasswordService()
-	// TODO: get id from the token
 	if err := storePasswordService.Execute(masterId, body); err != nil {
 		log.Printf("Error storing the password %v\n", err)
 		response.Error(w, err)
@@ -31,7 +34,11 @@ func StorePassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func RetrievePassword(w http.ResponseWriter, r *http.Request) {
-	masterId := r.Context().Value("masterId").(string) // TODO: protect it
+	masterId, ok := r.Context().Value("masterId").(string)
+	if !ok {
+		response.Json(w, http.StatusForbidden, nil)
+		return
+	}
 	key := r.URL.Query().Get("key")
 	if len(key) == 0 {
 		log.Println("Key is empty")
