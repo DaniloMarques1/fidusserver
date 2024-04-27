@@ -16,6 +16,7 @@ type Master struct {
 type MasterDAO interface {
 	Save(*Master) error
 	FindByEmail(string) (*Master, error)
+	FindById(string) (*Master, error)
 }
 
 type masterDAODatabase struct {
@@ -48,6 +49,20 @@ func (m *masterDAODatabase) FindByEmail(email string) (*Master, error) {
 
 	master := &Master{}
 	if err := stmt.QueryRow(email).Scan(&master.ID, &master.Name, &master.Email, &master.PasswordHash); err != nil {
+		return nil, err
+	}
+	return master, nil
+}
+
+func (m *masterDAODatabase) FindById(masterId string) (*Master, error) {
+	stmt, err := m.db.Prepare("select id, name, email, password_hash from fidus_master where id = $1")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	master := &Master{}
+	if err := stmt.QueryRow(masterId).Scan(&master.ID, &master.Name, &master.Email, &master.PasswordHash); err != nil {
 		return nil, err
 	}
 	return master, nil

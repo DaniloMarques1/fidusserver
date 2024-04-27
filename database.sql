@@ -8,5 +8,6 @@ create table if not exists fidus_master(
 create table if not exists fidus_password(
 	key varchar(50) not null,
 	master_id varchar(50) not null,
-	password varchar(100)
+	password varchar(100),
+	primary key(key, master_id)
 );

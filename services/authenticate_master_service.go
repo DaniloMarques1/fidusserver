@@ -16,16 +16,16 @@ type AuthenticateMasterService interface {
 }
 
 type authenticateMasterService struct {
-	dao models.MasterDAO
+	masterDAO models.MasterDAO
 }
 
 func NewAuthenticateMasterService() AuthenticateMasterService {
-	dao := models.NewMasterDAODatabase()
-	return &authenticateMasterService{dao}
+	masterDAO := models.NewMasterDAODatabase()
+	return &authenticateMasterService{masterDAO}
 }
 
 func (authService *authenticateMasterService) Execute(req *dtos.AuthenticateRequestDto) (string, error) {
-	master, err := authService.dao.FindByEmail(req.Email)
+	master, err := authService.masterDAO.FindByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", apierror.MasterEmailNotFound()

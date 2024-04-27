@@ -40,6 +40,7 @@ func CreateMaster(w http.ResponseWriter, r *http.Request) {
 func AuthenticateMaster(w http.ResponseWriter, r *http.Request) {
 	body := &dtos.AuthenticateRequestDto{}
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
+		log.Printf("Invalid request %v\n", err)
 		response.Error(w, apierror.InvalidRequestBody(err.Error()))
 		return
 	}
@@ -47,6 +48,7 @@ func AuthenticateMaster(w http.ResponseWriter, r *http.Request) {
 	authenticateservice := services.NewAuthenticateMasterService()
 	accessToken, err := authenticateservice.Execute(body)
 	if err != nil {
+		log.Printf("Error %v\n", err)
 		response.Error(w, err)
 		return
 	}
