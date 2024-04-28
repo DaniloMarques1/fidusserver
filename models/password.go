@@ -15,6 +15,7 @@ type Password struct {
 type PasswordDAO interface {
 	Save(*Password) error
 	FindOne(masterId, key string) (*Password, error)
+	Delete(masterId, key string) error
 }
 
 type passwordDAODatabase struct {
@@ -50,4 +51,16 @@ func (passwordDAO *passwordDAODatabase) FindOne(masterId, key string) (*Password
 		return nil, err
 	}
 	return password, nil
+}
+
+func (passwordDAO *passwordDAODatabase) Delete(masterId, key string) error {
+	stmt, err := passwordDAO.db.Prepare(`delete from fidus_password where master_id = $1 and key = $2`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	if _, err := stmt.Exec(masterId, key); err != nil {
+		return err
+	}
+	return nil
 }

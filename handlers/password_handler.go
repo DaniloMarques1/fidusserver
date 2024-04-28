@@ -60,3 +60,24 @@ func RetrievePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	response.Json(w, http.StatusOK, resp)
 }
+
+func DeletePassword(w http.ResponseWriter, r *http.Request) {
+	masterId, ok := r.Context().Value("masterId").(string)
+	if !ok {
+		response.Json(w, http.StatusForbidden, nil)
+		return
+	}
+	key := r.URL.Query().Get("key")
+	if len(key) == 0 {
+		log.Println("Key is empty")
+		response.Error(w, apierror.InvalidKey())
+		return
+	}
+
+	deletePassword := services.NewDeletePasswordService()
+	if err := deletePassword.Execute(masterId, key); err != nil {
+		response.Error(w, err)
+		return
+	}
+	response.Json(w, http.StatusNoContent, nil)
+}
