@@ -35,6 +35,7 @@ func (f *FidusServer) Start() error {
 		router.Post("/store", handlers.StorePassword)
 		router.Get("/retrieve", handlers.RetrievePassword)
 		router.Delete("/delete", handlers.DeletePassword)
+		router.Put("/update", handlers.UpdatePassword)
 	})
 
 	log.Printf("Server running at %v\n", f.port)

@@ -64,6 +64,7 @@ func RetrievePassword(w http.ResponseWriter, r *http.Request) {
 func DeletePassword(w http.ResponseWriter, r *http.Request) {
 	masterId, ok := r.Context().Value("masterId").(string)
 	if !ok {
+		log.Println("Master id is empty")
 		response.Json(w, http.StatusForbidden, nil)
 		return
 	}
@@ -76,8 +77,39 @@ func DeletePassword(w http.ResponseWriter, r *http.Request) {
 
 	deletePassword := services.NewDeletePasswordService()
 	if err := deletePassword.Execute(masterId, key); err != nil {
+		log.Printf("Delete Error: %v\n", err)
 		response.Error(w, err)
 		return
 	}
+	response.Json(w, http.StatusNoContent, nil)
+}
+
+func UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	masterId, ok := r.Context().Value("masterId").(string)
+	if !ok {
+		response.Json(w, http.StatusForbidden, nil)
+		return
+	}
+	key := r.URL.Query().Get("key")
+	if len(key) == 0 {
+		log.Println("Key is empty")
+		response.Error(w, apierror.InvalidKey())
+		return
+	}
+
+	body := &dtos.UpdatePasswordRequestDto{}
+	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
+		log.Printf("Error parsing json body %v\n", err)
+		response.Error(w, apierror.InvalidRequestBody(err.Error()))
+		return
+	}
+
+	updatePassword := services.NewUpdatePasswordService()
+	if err := updatePassword.Execute(masterId, key, body.Password); err != nil {
+		log.Printf("Update Error: %v\n", err)
+		response.Error(w, err)
+		return
+	}
+
 	response.Json(w, http.StatusNoContent, nil)
 }

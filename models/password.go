@@ -16,6 +16,7 @@ type PasswordDAO interface {
 	Save(*Password) error
 	FindOne(masterId, key string) (*Password, error)
 	Delete(masterId, key string) error
+	UpdatePasswordValue(masterId, key, passwordValue string) error
 }
 
 type passwordDAODatabase struct {
@@ -60,6 +61,18 @@ func (passwordDAO *passwordDAODatabase) Delete(masterId, key string) error {
 	}
 	defer stmt.Close()
 	if _, err := stmt.Exec(masterId, key); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (passwordDAO *passwordDAODatabase) UpdatePasswordValue(masterId, key, passwordValue string) error {
+	stmt, err := passwordDAO.db.Prepare(`update fidus_password set password=$1 where master_id = $2 and key = $3`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	if _, err := stmt.Exec(passwordValue, masterId, key); err != nil {
 		return err
 	}
 	return nil

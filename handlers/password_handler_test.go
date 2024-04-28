@@ -227,11 +227,11 @@ func TestRetrievePasswordWrongKey(t *testing.T) {
 func TestDeletePassword(t *testing.T) {
 	// create a new master account
 	input := `{"name":"mock", "email": "mock@email.com", "password":"12345678"}`
-	resp, _ := http.Post(baseUrl+"/master/register", "application/json", bytes.NewReader([]byte(input)))
+	http.Post(baseUrl+"/master/register", "application/json", bytes.NewReader([]byte(input)))
 
 	// authenticate a master
 	input = `{"email": "mock@email.com", "password":"12345678"}`
-	resp, _ = http.Post(baseUrl+"/master/authenticate", "application/json", bytes.NewReader([]byte(input)))
+	resp, _ := http.Post(baseUrl+"/master/authenticate", "application/json", bytes.NewReader([]byte(input)))
 	b, _ := io.ReadAll(resp.Body)
 	authResponse := &dtos.AuthenticateResponseDto{}
 	json.Unmarshal(b, authResponse)
@@ -268,5 +268,64 @@ func TestDeletePassword(t *testing.T) {
 	}
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("Wrong status code returned: %v\n", resp.StatusCode)
+	}
+}
+
+func TestUpdatePassword(t *testing.T) {
+	defer dropData(t)
+	// create a new master account
+	input := `{"name":"mock", "email": "mock@email.com", "password":"12345678"}`
+	http.Post(baseUrl+"/master/register", "application/json", bytes.NewReader([]byte(input)))
+
+	// authenticate a master
+	input = `{"email": "mock@email.com", "password":"12345678"}`
+	resp, _ := http.Post(baseUrl+"/master/authenticate", "application/json", bytes.NewReader([]byte(input)))
+	b, _ := io.ReadAll(resp.Body)
+	authResponse := &dtos.AuthenticateResponseDto{}
+	json.Unmarshal(b, authResponse)
+
+	// create a new password
+	input = `{"key": "somekey", "password":"somepassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/password/store", bytes.NewReader([]byte(input)))
+	req.Header.Add("Authorization", "Bearer "+authResponse.AccessToken)
+	http.DefaultClient.Do(req)
+
+	// update password
+	input = `{"password":"updatepassword"}`
+	req, _ = http.NewRequest(http.MethodPut, baseUrl+"/password/update", bytes.NewReader([]byte(input)))
+	query := req.URL.Query()
+	query.Add("key", "somekey")
+	req.Header.Add("Authorization", "Bearer "+authResponse.AccessToken)
+	req.URL.RawQuery = query.Encode()
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		t.Errorf("Wrong status code returned %v\n", resp.StatusCode)
+	}
+
+	// search for the password
+	req, _ = http.NewRequest(http.MethodGet, baseUrl+"/password/retrieve", nil)
+	query = req.URL.Query()
+	query.Add("key", "somekey")
+	req.URL.RawQuery = query.Encode()
+	req.Header.Add("Authorization", "Bearer "+authResponse.AccessToken)
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Error(err)
+	}
+	b, err = io.ReadAll(resp.Body)
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Wrong status code returned: %v\n", resp.StatusCode)
+	}
+
+	retrieveResponse := &dtos.RetrievePasswordResponseDto{}
+	json.Unmarshal(b, retrieveResponse)
+	if retrieveResponse.Password != "updatepassword" {
+		t.Errorf("Wrong password value returned: %v\n", retrieveResponse.Password)
 	}
 }

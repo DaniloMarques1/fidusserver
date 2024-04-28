@@ -10,3 +10,7 @@ type RetrievePasswordResponseDto struct {
 	Key      string `json:"key"`
 	Password string `json:"password"`
 }
+
+type UpdatePasswordRequestDto struct {
+	Password string `json:"password"`
+}
