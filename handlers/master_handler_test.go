@@ -16,7 +16,7 @@ const baseUrl = "http://localhost:8080/fidus"
 
 func dropData(t *testing.T) {
 	db := database.Database()
-	if _, err := db.Exec(`truncate table fidus_master`); err != nil {
+	if _, err := db.Exec(`truncate table fidus_master cascade; truncate table fidus_password;`); err != nil {
 		t.Fatal(err)
 	}
 }

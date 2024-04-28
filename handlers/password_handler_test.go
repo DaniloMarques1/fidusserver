@@ -43,7 +43,6 @@ func TestStorePassword(t *testing.T) {
 		t.Errorf("Wrong status code returned: %v\n", resp.StatusCode)
 	}
 
-	//TODO: retrieve the key
 	req, err = http.NewRequest(http.MethodGet, baseUrl+"/password/retrieve", nil)
 	if err != nil {
 		t.Error(err)

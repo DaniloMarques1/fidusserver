@@ -1,7 +1,7 @@
 package token
 
 import (
-	"log"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -23,22 +23,22 @@ func GenerateToken(masterId, masterEmail string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
-	signedToken, err := token.SignedString([]byte("thisisasecretstring"))
+	jwtSecretKey := os.Getenv("JWT_KEY")
+	signedToken, err := token.SignedString([]byte(jwtSecretKey))
 	if err != nil {
 		return "", err
 	}
-	log.Printf("Token %v\n", signedToken)
 	return signedToken, nil
 }
 
 func ParseToken(tokenStr string) (string, error) {
+	jwtSecretKey := os.Getenv("JWT_KEY")
 	token, err := jwt.ParseWithClaims(tokenStr, &masterClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("thisisasecretstring"), nil
+		return []byte(jwtSecretKey), nil
 	})
 	if err != nil {
 		return "", err
 	}
 	claims := token.Claims.(*masterClaims)
-	log.Printf("Claims = %v\n", claims)
 	return claims.MasterId, nil
 }

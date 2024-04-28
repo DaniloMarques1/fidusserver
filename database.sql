@@ -8,6 +8,9 @@ create table if not exists fidus_master(
 create table if not exists fidus_password(
 	key varchar(50) not null,
 	master_id varchar(50) not null,
-	password varchar(100),
-	primary key(key, master_id)
+	password bytea,
+	primary key(key, master_id),
+	constraint fk_master foreign key(master_id) references fidus_master(ID)
 );
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;

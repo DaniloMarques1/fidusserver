@@ -2,6 +2,8 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 
 	"github.com/danilomarques1/fidusserver/database"
 )
@@ -20,16 +22,22 @@ type PasswordDAO interface {
 }
 
 type passwordDAODatabase struct {
-	db *sql.DB
+	db                *sql.DB
+	passwordSecretKey string
 }
 
 func NewPasswordDAODatabase() PasswordDAO {
 	db := database.Database()
-	return &passwordDAODatabase{db}
+	passwordSecretKey := os.Getenv("PASSWORD_ENCRYPT_KEY")
+	return &passwordDAODatabase{db, passwordSecretKey}
 }
 
 func (passwordDAO *passwordDAODatabase) Save(password *Password) error {
-	stmt, err := passwordDAO.db.Prepare(`insert into fidus_password(master_id, key, password) values($1, $2, $3)`)
+	q := fmt.Sprintf(
+		`insert into fidus_password(master_id, key, password)
+		values($1, $2, pgp_sym_encrypt($3, '%s'))
+		`, passwordDAO.passwordSecretKey)
+	stmt, err := passwordDAO.db.Prepare(q)
 	if err != nil {
 		return err
 	}
@@ -42,7 +50,11 @@ func (passwordDAO *passwordDAODatabase) Save(password *Password) error {
 }
 
 func (passwordDAO *passwordDAODatabase) FindOne(masterId, key string) (*Password, error) {
-	stmt, err := passwordDAO.db.Prepare(`select master_id, key, password from fidus_password where master_id = $1 and key = $2`)
+	q := fmt.Sprintf(`
+	select master_id, key, pgp_sym_decrypt(password, '%s') as password
+	from fidus_password where master_id = $1 and key = $2
+	`, passwordDAO.passwordSecretKey)
+	stmt, err := passwordDAO.db.Prepare(q)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +79,10 @@ func (passwordDAO *passwordDAODatabase) Delete(masterId, key string) error {
 }
 
 func (passwordDAO *passwordDAODatabase) UpdatePasswordValue(masterId, key, passwordValue string) error {
-	stmt, err := passwordDAO.db.Prepare(`update fidus_password set password=$1 where master_id = $2 and key = $3`)
+	q := fmt.Sprintf(`
+	update fidus_password set password=pgp_sym_encrypt($1, '%s') where master_id = $2 and key = $3
+	`, passwordDAO.passwordSecretKey)
+	stmt, err := passwordDAO.db.Prepare(q)
 	if err != nil {
 		return err
 	}
