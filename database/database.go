@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"log"
+	"os"
 	"sync"
 
 	_ "github.com/lib/pq"
@@ -14,7 +15,7 @@ var err error
 
 func Database() *sql.DB {
 	once.Do(func() {
-		connectionString := "postgresql://fitz:fitz@localhost:5432/fidus?sslmode=disable"
+		connectionString := os.Getenv("DATABASE_URI")
 		db, err = sql.Open("postgres", connectionString)
 	})
 

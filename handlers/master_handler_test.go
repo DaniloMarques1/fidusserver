@@ -15,6 +15,7 @@ import (
 const baseUrl = "http://localhost:8080/fidus"
 
 func dropData(t *testing.T) {
+	t.Setenv("DATABASE_URI", "postgresql://fitz:fitz@localhost:5432/fidus?sslmode=disable")
 	db := database.Database()
 	if _, err := db.Exec(`truncate table fidus_master cascade; truncate table fidus_password;`); err != nil {
 		t.Fatal(err)
