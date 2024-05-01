@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -22,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	port := ":8080"
+	port := fmt.Sprintf(":%v", os.Getenv("PORT"))
 	fidusServer := NewFidusServer(port)
 	if err := fidusServer.Start(); err != nil {
 		log.Fatal(err)
