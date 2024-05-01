@@ -9,6 +9,7 @@ import (
 	"github.com/danilomarques1/fidusserver/dtos"
 	"github.com/danilomarques1/fidusserver/response"
 	"github.com/danilomarques1/fidusserver/services"
+	"github.com/danilomarques1/fidusserver/validate"
 )
 
 func StorePassword(w http.ResponseWriter, r *http.Request) {
@@ -20,9 +21,15 @@ func StorePassword(w http.ResponseWriter, r *http.Request) {
 	body := &dtos.StorePasswordRequestDto{}
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		log.Printf("Error parsing json body %v\n", err)
-		response.Error(w, apierror.InternalServerError(err))
+		response.Error(w, apierror.InvalidRequestBody(err.Error()))
 		return
 	}
+	validate := validate.Validate()
+	if err := validate.Struct(body); err != nil {
+		response.Error(w, apierror.InvalidRequestBody("Invalid parameter"))
+		return
+	}
+
 	storePasswordService := services.NewStorePasswordService()
 	if err := storePasswordService.Execute(masterId, body); err != nil {
 		log.Printf("Error storing the password %v\n", err)
@@ -101,6 +108,11 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		log.Printf("Error parsing json body %v\n", err)
 		response.Error(w, apierror.InvalidRequestBody(err.Error()))
+		return
+	}
+	validate := validate.Validate()
+	if err := validate.Struct(body); err != nil {
+		response.Error(w, apierror.InvalidRequestBody("Invalid parameters"))
 		return
 	}
 

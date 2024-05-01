@@ -1,8 +1,8 @@
 package dtos
 
 type StorePasswordRequestDto struct {
-	Key      string `json:"key"`
-	Password string `json:"password"`
+	Key      string `json:"key" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type RetrievePasswordResponseDto struct {
@@ -12,5 +12,5 @@ type RetrievePasswordResponseDto struct {
 }
 
 type UpdatePasswordRequestDto struct {
-	Password string `json:"password"`
+	Password string `json:"password" validate:"required"`
 }

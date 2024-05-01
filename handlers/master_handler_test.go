@@ -71,6 +71,60 @@ func TestRegisterServiceEmptyBody(t *testing.T) {
 	}
 }
 
+func TestRegisterServiceInvalidEmail(t *testing.T) {
+	defer dropData(t)
+	input := `{"name": "Mocked name", "email":"mock", "password":"thisisasecretpassword"}`
+	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Wrong status code returned. Expected %v got %v\n", http.StatusBadRequest, resp.StatusCode)
+	}
+}
+
+func TestRegisterServiceEmptyPassword(t *testing.T) {
+	defer dropData(t)
+	input := `{"name": "Mocked name", "email":"mock@mail.com", "password":""}`
+	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Wrong status code returned. Expected %v got %v\n", http.StatusBadRequest, resp.StatusCode)
+	}
+}
+
+func TestRegisterServiceInvalidPassword(t *testing.T) {
+	defer dropData(t)
+	input := `{"name": "Mocked name", "email":"mock@mail.com", "password":"1234"}`
+	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Wrong status code returned. Expected %v got %v\n", http.StatusBadRequest, resp.StatusCode)
+	}
+}
+
 func TestRegisterServiceEmailAlreadyTaken(t *testing.T) {
 	defer dropData(t)
 	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
@@ -143,6 +197,29 @@ func TestMasterAuthenticate(t *testing.T) {
 	}
 }
 
+func TestMasterAuthenticateInvalidEmail(t *testing.T) {
+	defer dropData(t)
+	// creating a master
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	resp, _ := http.DefaultClient.Do(req)
+	resp.Body.Close()
+
+	input = `{"email": "mockcom", "password":"thisisasecretpassword"}`
+	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Wrong status code returned. Expected: %v got: %v\n", http.StatusOK, resp.StatusCode)
+	}
+}
+
 func TestMasterAuthenticateWrongEmail(t *testing.T) {
 	defer dropData(t)
 	input := `{"email": "mock@gmail.com", "password":"mockedpassword"}`
@@ -155,7 +232,7 @@ func TestMasterAuthenticateWrongEmail(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusBadRequest {
+	if resp.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("Wrong status code returned. Expected: %v got: %v\n", http.StatusBadRequest, resp.StatusCode)
 	}
 	b, err := io.ReadAll(resp.Body)
@@ -189,7 +266,7 @@ func TestMasterAuthenticateWrongPassword(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusBadRequest {
+	if resp.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("Wrong status code returned. Expected: %v got: %v\n", http.StatusBadRequest, resp.StatusCode)
 	}
 	b, err := io.ReadAll(resp.Body)
