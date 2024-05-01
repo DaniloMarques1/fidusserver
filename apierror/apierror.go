@@ -26,11 +26,11 @@ func InternalServerError(err error) error {
 }
 
 func MasterEmailNotFound() error {
-	return &apiError{err: "incorrect email", status: http.StatusBadRequest}
+	return &apiError{err: "incorrect email", status: http.StatusUnauthorized}
 }
 
 func MasterIncorrectPassword() error {
-	return &apiError{err: "incorrect password", status: http.StatusBadRequest}
+	return &apiError{err: "incorrect password", status: http.StatusUnauthorized}
 }
 
 func MasterNotFound() error {
