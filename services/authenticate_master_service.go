@@ -12,7 +12,7 @@ import (
 )
 
 type AuthenticateMasterService interface {
-	Execute(*dtos.AuthenticateRequestDto) (string, error)
+	Execute(*dtos.AuthenticateRequestDto) (string, int64, error)
 }
 
 type authenticateMasterService struct {
@@ -24,22 +24,22 @@ func NewAuthenticateMasterService() AuthenticateMasterService {
 	return &authenticateMasterService{masterDAO}
 }
 
-func (authService *authenticateMasterService) Execute(req *dtos.AuthenticateRequestDto) (string, error) {
+func (authService *authenticateMasterService) Execute(req *dtos.AuthenticateRequestDto) (string, int64, error) {
 	master, err := authService.masterDAO.FindByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", apierror.MasterEmailNotFound()
+			return "", 0, apierror.MasterEmailNotFound()
 		}
-		return "", err
+		return "", 0, err
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(master.PasswordHash), []byte(req.Password)); err != nil {
-		return "", apierror.MasterIncorrectPassword()
+		return "", 0, apierror.MasterIncorrectPassword()
 	}
 
-	token, err := token.GenerateToken(master.ID, master.Email)
+	signedToken, expiresAt, err := token.GenerateToken(master.ID, master.Email)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return token, nil
+	return signedToken, expiresAt, nil
 }

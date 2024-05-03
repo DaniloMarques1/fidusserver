@@ -59,14 +59,14 @@ func AuthenticateMaster(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authenticateservice := services.NewAuthenticateMasterService()
-	accessToken, err := authenticateservice.Execute(body)
+	accessToken, expiresAt, err := authenticateservice.Execute(body)
 	if err != nil {
 		log.Printf("Error %v\n", err)
 		response.Error(w, err)
 		return
 	}
 
-	resp := &dtos.AuthenticateResponseDto{AccessToken: accessToken}
+	resp := &dtos.AuthenticateResponseDto{AccessToken: accessToken, ExpiresAt: expiresAt}
 
 	response.Json(w, http.StatusOK, resp)
 }

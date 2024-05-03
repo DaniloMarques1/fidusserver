@@ -13,12 +13,13 @@ type masterClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(masterId, masterEmail string) (string, error) {
+func GenerateToken(masterId, masterEmail string) (string, int64, error) {
+	expiresAt := time.Now().Add(5 * time.Minute)
 	claims := &masterClaims{
 		MasterId:    masterId,
 		MasterEmail: masterEmail,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
 		},
 	}
 
@@ -26,9 +27,9 @@ func GenerateToken(masterId, masterEmail string) (string, error) {
 	jwtSecretKey := os.Getenv("JWT_KEY")
 	signedToken, err := token.SignedString([]byte(jwtSecretKey))
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	return signedToken, nil
+	return signedToken, expiresAt.Unix(), nil
 }
 
 func ParseToken(tokenStr string) (string, error) {

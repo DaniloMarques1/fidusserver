@@ -195,6 +195,9 @@ func TestMasterAuthenticate(t *testing.T) {
 	if len(respBody.AccessToken) == 0 {
 		t.Fatalf("Access token not returned")
 	}
+	if respBody.ExpiresAt <= 0 {
+		t.Fatalf("Access token not returned")
+	}
 }
 
 func TestMasterAuthenticateInvalidEmail(t *testing.T) {
