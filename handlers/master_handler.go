@@ -16,14 +16,14 @@ func CreateMaster(w http.ResponseWriter, r *http.Request) {
 	body := &dtos.CreateMasterRequestDto{}
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		log.Printf("Invalid request %v\n", err)
-		response.Error(w, apierror.InvalidRequestBody(err.Error()))
+		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
 		return
 	}
 	log.Printf("%v\n", body)
 
 	validate := validate.Validate()
 	if err := validate.Struct(body); err != nil {
-		response.Error(w, apierror.InvalidRequestBody("Invalid parameters"))
+		response.Error(w, apierror.ErrInvalidRequest("Invalid parameters"))
 		return
 	}
 
@@ -49,12 +49,12 @@ func AuthenticateMaster(w http.ResponseWriter, r *http.Request) {
 	body := &dtos.AuthenticateRequestDto{}
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		log.Printf("Invalid request %v\n", err)
-		response.Error(w, apierror.InvalidRequestBody(err.Error()))
+		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
 		return
 	}
 	validate := validate.Validate()
 	if err := validate.Struct(body); err != nil {
-		response.Error(w, apierror.InvalidRequestBody("Invalid parameters"))
+		response.Error(w, apierror.ErrInvalidRequest("Invalid parameters"))
 		return
 	}
 

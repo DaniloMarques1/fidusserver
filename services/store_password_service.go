@@ -25,9 +25,18 @@ func NewStorePasswordService() StorePasswordService {
 }
 
 func (passwordService *storePasswordService) Execute(masterId string, req *dtos.StorePasswordRequestDto) error {
+	pwdKeyUsed, err := passwordService.passwordDAO.FindOne(masterId, req.Key)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+	if pwdKeyUsed != nil {
+		return apierror.ErrKeyAlreadyUsed()
+	}
+
 	if _, err := passwordService.masterDAO.FindById(masterId); err != nil {
+		// TODO: should be in dao
 		if errors.Is(err, sql.ErrNoRows) {
-			return apierror.MasterNotFound()
+			return apierror.ErrMasterNotFound()
 		}
 		return err
 	}

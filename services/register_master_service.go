@@ -26,9 +26,10 @@ func NewRegisterService() RegisterService {
 
 func (service *registerService) Execute(createMasterDto *dtos.CreateMasterRequestDto) (*models.Master, error) {
 	m, err := service.dao.FindByEmail(createMasterDto.Email)
+	// TODO: should be in dao
 	if !errors.Is(err, sql.ErrNoRows) {
 		if m != nil {
-			return nil, apierror.EmailAlreadyTaken()
+			return nil, apierror.ErrEmailAlreadyTaken()
 		}
 		return nil, err
 	}
@@ -46,7 +47,7 @@ func (service *registerService) Execute(createMasterDto *dtos.CreateMasterReques
 	}
 
 	if err := service.dao.Save(master); err != nil {
-		return nil, apierror.InternalServerError(err)
+		return nil, apierror.ErrInternalServerError(err.Error())
 	}
 
 	return master, nil

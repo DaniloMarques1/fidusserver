@@ -28,12 +28,12 @@ func (authService *authenticateMasterService) Execute(req *dtos.AuthenticateRequ
 	master, err := authService.masterDAO.FindByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", 0, apierror.MasterEmailNotFound()
+			return "", 0, apierror.ErrIncorrectCredentials()
 		}
 		return "", 0, err
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(master.PasswordHash), []byte(req.Password)); err != nil {
-		return "", 0, apierror.MasterIncorrectPassword()
+		return "", 0, apierror.ErrIncorrectCredentials()
 	}
 
 	signedToken, expiresAt, err := token.GenerateToken(master.ID, master.Email)

@@ -246,7 +246,7 @@ func TestMasterAuthenticateWrongEmail(t *testing.T) {
 	if err := json.Unmarshal(b, errorDto); err != nil {
 		t.Fatal(err)
 	}
-	if errorDto.Message != "incorrect email" {
+	if errorDto.Message != "Incorrect credentials" {
 		t.Fatal("Wrong message returned")
 	}
 }
@@ -280,7 +280,7 @@ func TestMasterAuthenticateWrongPassword(t *testing.T) {
 	if err := json.Unmarshal(b, errorDto); err != nil {
 		t.Fatal(err)
 	}
-	if errorDto.Message != "incorrect password" {
+	if errorDto.Message != "Incorrect credentials" {
 		t.Fatalf("Wrong message returned %v", errorDto.Message)
 	}
 }

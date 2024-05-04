@@ -8,47 +8,46 @@ type ApiError interface {
 }
 
 type apiError struct {
-	err    string
-	status int
-}
-
-func EmailAlreadyTaken() error {
-	return &apiError{err: "Email already taken", status: http.StatusBadRequest}
-}
-
-func InvalidRequestBody(err string) error {
-	return &apiError{err: err, status: http.StatusBadRequest}
-}
-
-// TODO: better name?
-func InternalServerError(err error) error {
-	return &apiError{err: err.Error(), status: http.StatusInternalServerError}
-}
-
-func MasterEmailNotFound() error {
-	return &apiError{err: "incorrect email", status: http.StatusUnauthorized}
-}
-
-func MasterIncorrectPassword() error {
-	return &apiError{err: "incorrect password", status: http.StatusUnauthorized}
-}
-
-func MasterNotFound() error {
-	return &apiError{err: "master not found for the given token", status: http.StatusBadRequest}
-}
-
-func PasswordNotFound() error {
-	return &apiError{err: "password not found", status: http.StatusNotFound}
-}
-
-func InvalidKey() error {
-	return &apiError{err: "Invalid key", status: http.StatusBadRequest}
+	errorMessage string
+	status       int
 }
 
 func (a *apiError) Error() string {
-	return a.err
+	return a.errorMessage
 }
 
 func (a *apiError) Status() int {
 	return a.status
+}
+
+func ErrEmailAlreadyTaken() error {
+	return &apiError{errorMessage: "Email already taken", status: http.StatusBadRequest}
+}
+
+func ErrInvalidRequest(errorMessage string) error {
+	return &apiError{errorMessage: errorMessage, status: http.StatusBadRequest}
+}
+
+func ErrInternalServerError(errorMessage string) error {
+	return &apiError{errorMessage: errorMessage, status: http.StatusInternalServerError}
+}
+
+func ErrIncorrectCredentials() error {
+	return &apiError{errorMessage: "Incorrect credentials", status: http.StatusUnauthorized}
+}
+
+func ErrMasterNotFound() error {
+	return &apiError{errorMessage: "Master not found for the given token", status: http.StatusBadRequest}
+}
+
+func ErrPasswordNotFound() error {
+	return &apiError{errorMessage: "Password not found", status: http.StatusNotFound}
+}
+
+func ErrInvalidKey() error {
+	return &apiError{errorMessage: "Invalid key", status: http.StatusBadRequest}
+}
+
+func ErrKeyAlreadyUsed() error {
+	return &apiError{errorMessage: "Key already in use", status: http.StatusBadRequest}
 }

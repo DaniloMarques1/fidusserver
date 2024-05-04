@@ -23,9 +23,10 @@ func NewRetrievePasswordService() RetrievePasswordService {
 
 func (retrieveService *retrievePasswordService) Execute(masterId, key string) (*models.Password, error) {
 	password, err := retrieveService.passwordDAO.FindOne(masterId, key)
+	// TODO: should be in dao
 	if err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
-			return nil, apierror.PasswordNotFound()
+			return nil, apierror.ErrPasswordNotFound()
 		}
 		return nil, err
 	}

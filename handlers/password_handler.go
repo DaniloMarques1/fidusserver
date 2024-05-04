@@ -21,12 +21,12 @@ func StorePassword(w http.ResponseWriter, r *http.Request) {
 	body := &dtos.StorePasswordRequestDto{}
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		log.Printf("Error parsing json body %v\n", err)
-		response.Error(w, apierror.InvalidRequestBody(err.Error()))
+		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
 		return
 	}
 	validate := validate.Validate()
 	if err := validate.Struct(body); err != nil {
-		response.Error(w, apierror.InvalidRequestBody("Invalid parameter"))
+		response.Error(w, apierror.ErrInvalidRequest("Invalid parameter"))
 		return
 	}
 
@@ -49,7 +49,7 @@ func RetrievePassword(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 	if len(key) == 0 {
 		log.Println("Key is empty")
-		response.Error(w, apierror.InvalidKey())
+		response.Error(w, apierror.ErrInvalidKey())
 		return
 	}
 	retrievePassword := services.NewRetrievePasswordService()
@@ -78,7 +78,7 @@ func DeletePassword(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 	if len(key) == 0 {
 		log.Println("Key is empty")
-		response.Error(w, apierror.InvalidKey())
+		response.Error(w, apierror.ErrInvalidKey())
 		return
 	}
 
@@ -100,19 +100,19 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 	if len(key) == 0 {
 		log.Println("Key is empty")
-		response.Error(w, apierror.InvalidKey())
+		response.Error(w, apierror.ErrInvalidKey())
 		return
 	}
 
 	body := &dtos.UpdatePasswordRequestDto{}
 	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		log.Printf("Error parsing json body %v\n", err)
-		response.Error(w, apierror.InvalidRequestBody(err.Error()))
+		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
 		return
 	}
 	validate := validate.Validate()
 	if err := validate.Struct(body); err != nil {
-		response.Error(w, apierror.InvalidRequestBody("Invalid parameters"))
+		response.Error(w, apierror.ErrInvalidRequest("Invalid parameters"))
 		return
 	}
 
