@@ -9,7 +9,6 @@ import (
 
 	"github.com/danilomarques1/fidusserver/database"
 	"github.com/danilomarques1/fidusserver/dtos"
-	"github.com/danilomarques1/fidusserver/response"
 )
 
 const baseUrl = "http://localhost:8080/fidus"
@@ -152,7 +151,7 @@ func TestRegisterServiceEmailAlreadyTaken(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	respBody := &response.ErrorResponseDto{}
+	respBody := &dtos.ErrorResponseDto{}
 	if err := json.Unmarshal(b, respBody); err != nil {
 		t.Fatal(err)
 	}
@@ -242,7 +241,7 @@ func TestMasterAuthenticateWrongEmail(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	errorDto := &response.ErrorResponseDto{}
+	errorDto := &dtos.ErrorResponseDto{}
 	if err := json.Unmarshal(b, errorDto); err != nil {
 		t.Fatal(err)
 	}
@@ -276,7 +275,7 @@ func TestMasterAuthenticateWrongPassword(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	errorDto := &response.ErrorResponseDto{}
+	errorDto := &dtos.ErrorResponseDto{}
 	if err := json.Unmarshal(b, errorDto); err != nil {
 		t.Fatal(err)
 	}
