@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/danilomarques1/fidusserver/database"
 )
@@ -17,6 +18,9 @@ type MasterDAO interface {
 	Save(*Master) error
 	FindByEmail(string) (*Master, error)
 	FindById(string) (*Master, error)
+
+	// NoMatchError returns true if the error received was because it could find a match
+	NoMatchError(err error) bool
 }
 
 type masterDAODatabase struct {
@@ -66,4 +70,8 @@ func (m *masterDAODatabase) FindById(masterId string) (*Master, error) {
 		return nil, err
 	}
 	return master, nil
+}
+
+func (m *masterDAODatabase) NoMatchError(err error) bool {
+	return errors.Is(err, sql.ErrNoRows)
 }

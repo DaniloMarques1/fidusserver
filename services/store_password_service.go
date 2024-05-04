@@ -1,9 +1,6 @@
 package services
 
 import (
-	"database/sql"
-	"errors"
-
 	"github.com/danilomarques1/fidusserver/apierror"
 	"github.com/danilomarques1/fidusserver/dtos"
 	"github.com/danilomarques1/fidusserver/models"
@@ -26,7 +23,7 @@ func NewStorePasswordService() StorePasswordService {
 
 func (passwordService *storePasswordService) Execute(masterId string, req *dtos.StorePasswordRequestDto) error {
 	pwdKeyUsed, err := passwordService.passwordDAO.FindOne(masterId, req.Key)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err != nil && !passwordService.passwordDAO.NoMatchError(err) {
 		return err
 	}
 	if pwdKeyUsed != nil {
@@ -34,8 +31,7 @@ func (passwordService *storePasswordService) Execute(masterId string, req *dtos.
 	}
 
 	if _, err := passwordService.masterDAO.FindById(masterId); err != nil {
-		// TODO: should be in dao
-		if errors.Is(err, sql.ErrNoRows) {
+		if passwordService.masterDAO.NoMatchError(err) {
 			return apierror.ErrMasterNotFound()
 		}
 		return err

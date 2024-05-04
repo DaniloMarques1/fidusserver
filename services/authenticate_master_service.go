@@ -1,9 +1,6 @@
 package services
 
 import (
-	"database/sql"
-	"errors"
-
 	"github.com/danilomarques1/fidusserver/apierror"
 	"github.com/danilomarques1/fidusserver/dtos"
 	"github.com/danilomarques1/fidusserver/models"
@@ -27,7 +24,7 @@ func NewAuthenticateMasterService() AuthenticateMasterService {
 func (authService *authenticateMasterService) Execute(req *dtos.AuthenticateRequestDto) (string, int64, error) {
 	master, err := authService.masterDAO.FindByEmail(req.Email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if authService.masterDAO.NoMatchError(err) {
 			return "", 0, apierror.ErrIncorrectCredentials()
 		}
 		return "", 0, err

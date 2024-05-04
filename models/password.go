@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 
@@ -19,6 +20,9 @@ type PasswordDAO interface {
 	FindOne(masterId, key string) (*Password, error)
 	Delete(masterId, key string) error
 	UpdatePasswordValue(masterId, key, passwordValue string) error
+
+	// NoMatchError returns true if the error received was because it could find a match
+	NoMatchError(err error) bool
 }
 
 type passwordDAODatabase struct {
@@ -91,4 +95,8 @@ func (passwordDAO *passwordDAODatabase) UpdatePasswordValue(masterId, key, passw
 		return err
 	}
 	return nil
+}
+
+func (passwordDAO *passwordDAODatabase) NoMatchError(err error) bool {
+	return errors.Is(err, sql.ErrNoRows)
 }

@@ -1,9 +1,6 @@
 package services
 
 import (
-	"database/sql"
-	"errors"
-
 	"github.com/danilomarques1/fidusserver/apierror"
 	"github.com/danilomarques1/fidusserver/dtos"
 	"github.com/danilomarques1/fidusserver/models"
@@ -26,8 +23,7 @@ func NewRegisterService() RegisterService {
 
 func (service *registerService) Execute(createMasterDto *dtos.CreateMasterRequestDto) (*models.Master, error) {
 	m, err := service.dao.FindByEmail(createMasterDto.Email)
-	// TODO: should be in dao
-	if !errors.Is(err, sql.ErrNoRows) {
+	if !service.dao.NoMatchError(err) {
 		if m != nil {
 			return nil, apierror.ErrEmailAlreadyTaken()
 		}
