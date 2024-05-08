@@ -13,6 +13,8 @@ import (
 
 const baseUrl = "http://localhost:8080/fidus"
 
+// it cleans the database and should be called
+// after running each test
 func dropData(t *testing.T) {
 	t.Setenv("DATABASE_URI", "postgresql://fitz:fitz@localhost:5432/fidus?sslmode=disable")
 	db := database.Database()

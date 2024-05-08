@@ -19,7 +19,6 @@ func CreateMaster(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
 		return
 	}
-	log.Printf("%v\n", body)
 
 	validate := validate.Validate()
 	if err := validate.Struct(body); err != nil {

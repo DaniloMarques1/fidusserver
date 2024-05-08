@@ -154,6 +154,88 @@ func TestStorePasswordExpiredToken(t *testing.T) {
 	}
 }
 
+func TestStorePasswordNoToken(t *testing.T) {
+	defer dropData(t)
+	// create master
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	resp, _ := http.DefaultClient.Do(req)
+
+	// auth master
+	input = `{"email": "mock@gmail.com", "password":"thisisasecretpassword"}`
+	req, _ = http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
+	http.DefaultClient.Do(req)
+
+	// create a password
+	input = `{"key": "somekey", "password":"somepassword"}`
+	resp, err := http.Post(baseUrl+"/password/store", "application/json", bytes.NewReader([]byte(input)))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("Wrong status code returned %v\n", resp.StatusCode)
+	}
+}
+
+func TestStorePasswordEmptyAuthorizationToken(t *testing.T) {
+	defer dropData(t)
+	// create master
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	resp, _ := http.DefaultClient.Do(req)
+
+	// auth master
+	input = `{"email": "mock@gmail.com", "password":"thisisasecretpassword"}`
+	req, _ = http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
+	http.DefaultClient.Do(req)
+
+	// create a password
+	input = `{"key": "somekey", "password":"somepassword"}`
+	req, err := http.NewRequest(http.MethodPost, baseUrl+"/password/store", bytes.NewReader([]byte(input)))
+	if err != nil {
+		t.Error(err)
+	}
+	req.Header.Add("Authorization", "")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("Wrong status code returned %v\n", resp.StatusCode)
+	}
+}
+
+func TestStorePasswordEmptyBearerToken(t *testing.T) {
+	defer dropData(t)
+	// create master
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	resp, _ := http.DefaultClient.Do(req)
+
+	// auth master
+	input = `{"email": "mock@gmail.com", "password":"thisisasecretpassword"}`
+	req, _ = http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
+	http.DefaultClient.Do(req)
+
+	// create a password
+	input = `{"key": "somekey", "password":"somepassword"}`
+	req, err := http.NewRequest(http.MethodPost, baseUrl+"/password/store", bytes.NewReader([]byte(input)))
+	if err != nil {
+		t.Error(err)
+	}
+	req.Header.Add("Authorization", "Bearer")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("Wrong status code returned %v\n", resp.StatusCode)
+	}
+}
+
 func TestStorePasswordKeyAlreadyUsed(t *testing.T) {
 	defer dropData(t)
 	// create master
