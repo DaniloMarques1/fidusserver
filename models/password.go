@@ -21,7 +21,7 @@ type PasswordDAO interface {
 	Delete(masterId, key string) error
 	UpdatePasswordValue(masterId, key, passwordValue string) error
 
-	// NoMatchError returns true if the error received was because it could find a match
+	// NoMatchError returns true if the error received was because it could not find a match
 	NoMatchError(err error) bool
 }
 
