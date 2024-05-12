@@ -125,3 +125,18 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 
 	response.Json(w, http.StatusNoContent, nil)
 }
+
+func RetrieveKeys(w http.ResponseWriter, r *http.Request) {
+	masterId, ok := r.Context().Value("masterId").(string)
+	if !ok {
+		response.Json(w, http.StatusForbidden, nil)
+		return
+	}
+
+	retrieveKeys := services.NewRetrieveKeys()
+	keys, err := retrieveKeys.Execute(masterId)
+	if err != nil {
+		response.Error(w, err)
+	}
+	response.Json(w, http.StatusOK, keys)
+}

@@ -492,3 +492,40 @@ func TestUpdatePasswordWrongKey(t *testing.T) {
 		t.Errorf("Wrong status code returned %v\n", resp.StatusCode)
 	}
 }
+
+func TestRetrieveKeys(t *testing.T) {
+	defer dropData(t)
+	accessToken, err := createAndAuthenticateMaster()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// create a new password
+	input := `{"key": "somekey", "password":"somepassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/password/store", bytes.NewReader([]byte(input)))
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	http.DefaultClient.Do(req)
+
+	req, err = http.NewRequest(http.MethodGet, baseUrl+"/password/keys", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	keys, err := readResponse[[]string](resp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(*keys) != 1 {
+		t.Fatalf("Wrong number of keys returned %v\n", len(*keys))
+	}
+
+	if (*keys)[0] != "somekey" {
+		t.Fatalf("Wrong key returned %v\n", (*keys)[0])
+	}
+}

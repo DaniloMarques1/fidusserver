@@ -20,6 +20,7 @@ type PasswordDAO interface {
 	FindOne(masterId, key string) (*Password, error)
 	Delete(masterId, key string) error
 	UpdatePasswordValue(masterId, key, passwordValue string) error
+	Keys(masterId string) ([]string, error)
 
 	// NoMatchError returns true if the error received was because it could not find a match
 	NoMatchError(err error) bool
@@ -95,6 +96,28 @@ func (passwordDAO *passwordDAODatabase) UpdatePasswordValue(masterId, key, passw
 		return err
 	}
 	return nil
+}
+
+func (passwordDAO *passwordDAODatabase) Keys(masterId string) ([]string, error) {
+	stmt, err := passwordDAO.db.Prepare(`select key from fidus_password where master_id = $1`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(masterId)
+	if err != nil {
+		return nil, err
+	}
+	keys := make([]string, 0)
+	for rows.Next() {
+		var key string
+		if err := rows.Scan(&key); err != nil {
+			return nil, err
+		}
+		keys = append(keys, key)
+	}
+
+	return keys, nil
 }
 
 func (passwordDAO *passwordDAODatabase) NoMatchError(err error) bool {
