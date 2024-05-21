@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/danilomarques1/fidusserver/apierror"
 	"github.com/danilomarques1/fidusserver/dtos"
 	"github.com/danilomarques1/fidusserver/models"
@@ -40,6 +42,7 @@ func (service *registerService) Execute(createMasterDto *dtos.CreateMasterReques
 		Name:         createMasterDto.Name,
 		Email:        createMasterDto.Email,
 		PasswordHash: string(hashed),
+		CreatedAt:    time.Now(),
 	}
 
 	if err := service.dao.Save(master); err != nil {
