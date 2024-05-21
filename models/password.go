@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/danilomarques1/fidusserver/database"
 )
@@ -13,6 +14,7 @@ type Password struct {
 	MasterId      string
 	Key           string
 	PasswordValue string
+	CreatedAt     time.Time
 }
 
 type PasswordDAO interface {
