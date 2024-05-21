@@ -35,12 +35,12 @@ func NewMasterDAODatabase() MasterDAO {
 }
 
 func (m *masterDAODatabase) Save(master *Master) error {
-	stmt, err := m.db.Prepare(`insert into fidus_master(id, name, email, password_hash, created_at) values($1, $2, $3, $4, $5)`)
+	stmt, err := m.db.Prepare(`insert into fidus_master(id, name, email, password_hash) values($1, $2, $3, $4)`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	if _, err := stmt.Exec(master.ID, master.Name, master.Email, master.PasswordHash, master.CreatedAt); err != nil {
+	if _, err := stmt.Exec(master.ID, master.Name, master.Email, master.PasswordHash); err != nil {
 		return err
 	}
 	return nil
