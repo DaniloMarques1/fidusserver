@@ -12,7 +12,7 @@ import (
 
 func createAndAuthenticateMaster() (string, error) {
 	// create master
-	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	if err != nil {
 		return "", err
@@ -23,7 +23,7 @@ func createAndAuthenticateMaster() (string, error) {
 	}
 
 	// auth master
-	input = `{"email": "mock@gmail.com", "password":"thisisasecretpassword"}`
+	input = `{"email": "mock@gmail.com", "password":"Mock@@123"}`
 	req, err = http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
 	if err != nil {
 		return "", err

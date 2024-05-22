@@ -25,7 +25,7 @@ func dropData(t *testing.T) {
 
 func TestRegisterService(t *testing.T) {
 	defer dropData(t)
-	input := bytes.NewReader([]byte(`{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`))
+	input := bytes.NewReader([]byte(`{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`))
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/register", input)
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +74,7 @@ func TestRegisterServiceEmptyBody(t *testing.T) {
 
 func TestRegisterServiceInvalidEmail(t *testing.T) {
 	defer dropData(t)
-	input := `{"name": "Mocked name", "email":"mock", "password":"thisisasecretpassword"}`
+	input := `{"name": "Mocked name", "email":"mock", "password":"Mock@@123"}`
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	if err != nil {
 		t.Fatal(err)
@@ -128,12 +128,12 @@ func TestRegisterServiceInvalidPassword(t *testing.T) {
 
 func TestRegisterServiceEmailAlreadyTaken(t *testing.T) {
 	defer dropData(t)
-	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	resp, _ := http.DefaultClient.Do(req)
 	resp.Body.Close()
 
-	input = `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	input = `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	if err != nil {
 		t.Fatal(err)
@@ -165,12 +165,12 @@ func TestRegisterServiceEmailAlreadyTaken(t *testing.T) {
 func TestMasterAuthenticate(t *testing.T) {
 	defer dropData(t)
 	// creating a master
-	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	resp, _ := http.DefaultClient.Do(req)
 	resp.Body.Close()
 
-	input = `{"email": "mock@gmail.com", "password":"thisisasecretpassword"}`
+	input = `{"email": "mock@gmail.com", "password":"Mock@@123"}`
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
 	if err != nil {
 		t.Fatal(err)

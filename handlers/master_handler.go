@@ -22,6 +22,7 @@ func CreateMaster(w http.ResponseWriter, r *http.Request) {
 
 	validate := validate.Validate()
 	if err := validate.Struct(body); err != nil {
+		log.Printf("Error %v\n", err)
 		response.Error(w, apierror.ErrInvalidRequest("Invalid parameters"))
 		return
 	}

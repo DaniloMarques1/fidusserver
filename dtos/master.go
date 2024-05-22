@@ -3,7 +3,7 @@ package dtos
 type CreateMasterRequestDto struct {
 	Name     string `json:"name" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8"`
+	Password string `json:"password" validate:"required,master_password"`
 }
 
 type CreateMasterResponseDto struct {
