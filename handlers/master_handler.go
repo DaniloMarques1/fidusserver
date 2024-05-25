@@ -70,3 +70,23 @@ func AuthenticateMaster(w http.ResponseWriter, r *http.Request) {
 
 	response.Json(w, http.StatusOK, resp)
 }
+
+func ResetPassword(w http.ResponseWriter, r *http.Request) {
+	body := &dtos.ResetMasterPasswordRequestDto{}
+	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
+		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
+		return
+	}
+	validate := validate.Validate()
+	if err := validate.Struct(body); err != nil {
+		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
+		return
+	}
+	resetPasswordService := services.NewResetMasterPasswordService()
+	if err := resetPasswordService.Execute(body); err != nil {
+		response.Error(w, err)
+		return
+	}
+
+	response.Json(w, http.StatusNoContent, nil)
+}

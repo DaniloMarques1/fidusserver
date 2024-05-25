@@ -15,10 +15,16 @@ type CreateMasterResponseDto struct {
 
 type AuthenticateRequestDto struct {
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8"`
+	Password string `json:"password" validate:"required,master_password"`
 }
 
 type AuthenticateResponseDto struct {
 	AccessToken string `json:"access_token"`
 	ExpiresAt   int64  `json:"expires_at"`
+}
+
+type ResetMasterPasswordRequestDto struct {
+	Email       string `json:"email" validate:"required,email"`
+	OldPassword string `json:"old_password" validate:"required,master_password"`
+	NewPassword string `json:"new_password" validate:"required,master_password"`
 }

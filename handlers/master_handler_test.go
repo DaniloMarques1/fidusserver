@@ -272,7 +272,7 @@ func TestMasterAuthenticateWrongPassword(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	input = `{"email": "mock@gmail.com", "password":"mockedpassword"}`
+	input = `{"email": "mock@gmail.com", "password":"Mock@@124"}`
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
 	if err != nil {
 		t.Fatal(err)
@@ -295,5 +295,44 @@ func TestMasterAuthenticateWrongPassword(t *testing.T) {
 	}
 	if errorDto.Message != "Incorrect credentials" {
 		t.Fatalf("Wrong message returned %v", errorDto.Message)
+	}
+}
+
+func TestResetMasterPassword(t *testing.T) {
+	defer dropData(t)
+	// creating a master
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
+	resp, _ := http.DefaultClient.Do(req)
+	resp.Body.Close()
+
+	// authenticating
+	input = `{"email": "mock@gmail.com", "password":"Mock@@123"}`
+	http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
+	http.DefaultClient.Do(req)
+	resp.Body.Close()
+
+	// update
+	input = `{"email": "mock@gmail.com", "old_password":"Mock@@123", "new_password": "Mock@@124"}`
+	req, _ = http.NewRequest(http.MethodPut, baseUrl+"/master/resetpassword", bytes.NewReader([]byte(input)))
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNoContent {
+		t.Fatalf("Wrong status code returned. expected: %v got: %v\n", http.StatusNoContent, resp.StatusCode)
+	}
+
+	// authenticating
+	input = `{"email": "mock@gmail.com", "password":"Mock@@124"}`
+	req, err = http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Wrong status code returned. expected: %v got: %v\n", http.StatusOK, resp.StatusCode)
 	}
 }

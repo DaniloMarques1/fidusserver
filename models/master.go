@@ -21,14 +21,29 @@ type Master struct {
 
 func NewMaster(name, email, password string) (*Master, error) {
 	master := &Master{Name: name, Email: email}
-	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
+	if err := master.HashPassword(password); err != nil {
 		return nil, err
 	}
-	master.PasswordHash = string(hashed)
-	master.PasswordExpirationDate = time.Now().Add(2190 * time.Hour)
+	master.SetPasswordExpiration()
 	master.ID = uuid.NewString()
 	return master, nil
+}
+
+func (m *Master) SetPasswordExpiration() {
+	m.PasswordExpirationDate = time.Now().Add(2190 * time.Hour)
+}
+
+func (m *Master) ComparePassword(password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(m.PasswordHash), []byte(password))
+}
+
+func (m *Master) HashPassword(password string) error {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	m.PasswordHash = string(hashed)
+	return nil
 }
 
 func (m *Master) IsPasswordExpired() bool {
@@ -40,6 +55,7 @@ type MasterDAO interface {
 	Save(*Master) error
 	FindByEmail(string) (*Master, error)
 	FindById(string) (*Master, error)
+	ResetPassword(masterId, password string, passwordExpirationDate time.Time) error
 
 	// NoMatchError returns true if the error received was because it could find a match
 	NoMatchError(err error) bool
@@ -92,6 +108,18 @@ func (m *masterDAODatabase) FindById(masterId string) (*Master, error) {
 		return nil, err
 	}
 	return master, nil
+}
+
+func (m *masterDAODatabase) ResetPassword(masterId, password string, passwordExpirationDate time.Time) error {
+	stmt, err := m.db.Prepare(`update fidus_master set password_hash = $1, password_expiration_date = $2 where id = $3`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	if _, err := stmt.Exec(password, passwordExpirationDate, masterId); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *masterDAODatabase) NoMatchError(err error) bool {
