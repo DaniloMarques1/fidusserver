@@ -131,6 +131,9 @@ func TestRegisterServiceEmailAlreadyTaken(t *testing.T) {
 	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	resp, _ := http.DefaultClient.Do(req)
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Wrong status code when creating the master")
+	}
 	resp.Body.Close()
 
 	input = `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
@@ -168,6 +171,9 @@ func TestMasterAuthenticate(t *testing.T) {
 	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	resp, _ := http.DefaultClient.Do(req)
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Wrong status code when creating the master")
+	}
 	resp.Body.Close()
 
 	input = `{"email": "mock@gmail.com", "password":"Mock@@123"}`
@@ -204,12 +210,15 @@ func TestMasterAuthenticate(t *testing.T) {
 func TestMasterAuthenticateInvalidEmail(t *testing.T) {
 	defer dropData(t)
 	// creating a master
-	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	resp, _ := http.DefaultClient.Do(req)
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Wrong status code returned when creating the master")
+	}
 	resp.Body.Close()
 
-	input = `{"email": "mockcom", "password":"thisisasecretpassword"}`
+	input = `{"email": "mockcom", "password":"Mock@@123"}`
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
 	if err != nil {
 		t.Fatal(err)
@@ -226,7 +235,7 @@ func TestMasterAuthenticateInvalidEmail(t *testing.T) {
 
 func TestMasterAuthenticateWrongEmail(t *testing.T) {
 	defer dropData(t)
-	input := `{"email": "mock@gmail.com", "password":"mockedpassword"}`
+	input := `{"email": "mock@gmail.com", "password":"Mock@@123"}`
 	req, err := http.NewRequest(http.MethodPost, baseUrl+"/master/authenticate", bytes.NewReader([]byte(input)))
 	if err != nil {
 		t.Fatal(err)
@@ -255,9 +264,12 @@ func TestMasterAuthenticateWrongEmail(t *testing.T) {
 func TestMasterAuthenticateWrongPassword(t *testing.T) {
 	defer dropData(t)
 	// creating a master
-	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"thisisasecretpassword"}`
+	input := `{"name": "Mocked name", "email":"mock@gmail.com", "password":"Mock@@123"}`
 	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/master/register", bytes.NewReader([]byte(input)))
 	resp, _ := http.DefaultClient.Do(req)
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Wrong status code when creating the master")
+	}
 	resp.Body.Close()
 
 	input = `{"email": "mock@gmail.com", "password":"mockedpassword"}`
