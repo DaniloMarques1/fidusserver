@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	"testing"
+	"time"
 
+	"github.com/danilomarques1/fidusserver/database"
 	"github.com/danilomarques1/fidusserver/dtos"
 )
 
@@ -527,5 +529,31 @@ func TestRetrieveKeys(t *testing.T) {
 
 	if (*keys)[0] != "somekey" {
 		t.Fatalf("Wrong key returned %v\n", (*keys)[0])
+	}
+}
+
+func TestPasswordExpired(t *testing.T) {
+	defer dropData(t)
+	accessToken, err := createAndAuthenticateMaster()
+	if err != nil {
+		t.Fatal(err)
+	}
+	expiredDate := time.Now().Add(-(5 * time.Hour))
+	t.Setenv("DATABASE_URI", "postgresql://fitz:fitz@localhost:5432/fidus?sslmode=disable")
+	db := database.Database()
+	if _, err := db.Exec(`update fidus_master set password_expiration_date=$1`, expiredDate); err != nil {
+		t.Fatal(err)
+	}
+
+	// create a new password
+	input := `{"key": "somekey", "password":"somepassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/password/store", bytes.NewReader([]byte(input)))
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusConflict {
+		t.Fatalf("Wrong status code returned expected %v got %v\n", http.StatusConflict, resp.StatusCode)
 	}
 }
