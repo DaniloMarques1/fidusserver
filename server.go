@@ -8,6 +8,7 @@ import (
 
 	"github.com/danilomarques1/fidusserver/handlers"
 	"github.com/danilomarques1/fidusserver/response"
+	"github.com/danilomarques1/fidusserver/services"
 	"github.com/danilomarques1/fidusserver/token"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -32,6 +33,7 @@ func (f *FidusServer) Start() error {
 
 	f.router.Route("/fidus/password", func(router chi.Router) {
 		router.Use(AuthMiddleware)
+		router.Use(VerifyPasswordMasterExpiration)
 		router.Post("/store", handlers.StorePassword)
 		router.Get("/retrieve", handlers.RetrievePassword)
 		router.Delete("/delete", handlers.DeletePassword)
@@ -64,6 +66,23 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		ctx := context.WithValue(r.Context(), "masterId", masterId)
 		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func VerifyPasswordMasterExpiration(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		masterId, ok := r.Context().Value("masterId").(string)
+		if !ok {
+			response.Json(w, http.StatusForbidden, nil)
+			return
+		}
+		verifyPassword := services.NewVerifyMasterPasswordExpirationService()
+		if err := verifyPassword.Execute(masterId); err != nil {
+			response.Json(w, http.StatusConflict, nil)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
