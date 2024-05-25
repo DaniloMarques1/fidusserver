@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/danilomarques1/fidusserver/database"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Master struct {
@@ -15,6 +17,23 @@ type Master struct {
 	PasswordHash           string
 	CreatedAt              time.Time
 	PasswordExpirationDate time.Time
+}
+
+func NewMaster(name, email, password string) (*Master, error) {
+	master := &Master{Name: name, Email: email}
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	master.PasswordHash = string(hashed)
+	master.PasswordExpirationDate = time.Now().Add(2190 * time.Hour)
+	master.ID = uuid.NewString()
+	return master, nil
+}
+
+func (m *Master) IsPasswordExpired() bool {
+	now := time.Now()
+	return now.After(m.PasswordExpirationDate)
 }
 
 type MasterDAO interface {

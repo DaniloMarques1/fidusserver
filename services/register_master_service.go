@@ -1,13 +1,9 @@
 package services
 
 import (
-	"time"
-
 	"github.com/danilomarques1/fidusserver/apierror"
 	"github.com/danilomarques1/fidusserver/dtos"
 	"github.com/danilomarques1/fidusserver/models"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterService interface {
@@ -32,18 +28,9 @@ func (service *registerService) Execute(createMasterDto *dtos.CreateMasterReques
 		return nil, err
 	}
 
-	hashed, err := bcrypt.GenerateFromPassword([]byte(createMasterDto.Password), bcrypt.DefaultCost)
+	master, err := models.NewMaster(createMasterDto.Name, createMasterDto.Email, createMasterDto.Password)
 	if err != nil {
 		return nil, err
-	}
-
-	passwordExpirationDate := time.Now().Add(2190 * time.Hour)
-	master := &models.Master{
-		ID:                     uuid.NewString(),
-		Name:                   createMasterDto.Name,
-		Email:                  createMasterDto.Email,
-		PasswordHash:           string(hashed),
-		PasswordExpirationDate: passwordExpirationDate,
 	}
 
 	if err := service.dao.Save(master); err != nil {
