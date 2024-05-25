@@ -67,14 +67,14 @@ func (m *masterDAODatabase) Save(master *Master) error {
 }
 
 func (m *masterDAODatabase) FindByEmail(email string) (*Master, error) {
-	stmt, err := m.db.Prepare("select id, name, email, password_hash from fidus_master where email = $1")
+	stmt, err := m.db.Prepare("select id, name, email, password_hash, password_expiration_date from fidus_master where email = $1")
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 
 	master := &Master{}
-	if err := stmt.QueryRow(email).Scan(&master.ID, &master.Name, &master.Email, &master.PasswordHash); err != nil {
+	if err := stmt.QueryRow(email).Scan(&master.ID, &master.Name, &master.Email, &master.PasswordHash, &master.PasswordExpirationDate); err != nil {
 		return nil, err
 	}
 	return master, nil
