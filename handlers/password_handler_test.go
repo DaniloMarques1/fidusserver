@@ -532,7 +532,7 @@ func TestRetrieveKeys(t *testing.T) {
 	}
 }
 
-func TestPasswordExpired(t *testing.T) {
+func TestMasterPasswordExpired(t *testing.T) {
 	defer dropData(t)
 	accessToken, err := createAndAuthenticateMaster()
 	if err != nil {
