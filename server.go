@@ -30,7 +30,7 @@ func (f *FidusServer) Start() error {
 	f.router.Route("/fidus/master", func(router chi.Router) {
 		router.Post("/register", handlers.CreateMaster)
 		router.Post("/authenticate", handlers.AuthenticateMaster)
-		router.Put("/resetpassword", handlers.ResetPassword)
+		router.Put("/reset/password", handlers.ResetPassword)
 	})
 
 	f.router.Route("/fidus/password", func(router chi.Router) {

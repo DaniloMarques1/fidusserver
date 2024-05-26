@@ -314,7 +314,7 @@ func TestResetMasterPassword(t *testing.T) {
 
 	// update
 	input = `{"email": "mock@gmail.com", "old_password":"Mock@@123", "new_password": "Mock@@124"}`
-	req, _ = http.NewRequest(http.MethodPut, baseUrl+"/master/resetpassword", bytes.NewReader([]byte(input)))
+	req, _ = http.NewRequest(http.MethodPut, baseUrl+"/master/reset/password", bytes.NewReader([]byte(input)))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)
@@ -353,7 +353,7 @@ func TestResetMasterPasswordWrongOldPassword(t *testing.T) {
 
 	// update
 	input = `{"email": "mock@gmail.com", "old_password":"Mock@@122", "new_password": "Mock@@124"}`
-	req, _ = http.NewRequest(http.MethodPut, baseUrl+"/master/resetpassword", bytes.NewReader([]byte(input)))
+	req, _ = http.NewRequest(http.MethodPut, baseUrl+"/master/reset/password", bytes.NewReader([]byte(input)))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)
