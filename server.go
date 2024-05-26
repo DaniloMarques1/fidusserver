@@ -25,6 +25,7 @@ func NewFidusServer(port string) *FidusServer {
 
 func (f *FidusServer) Start() error {
 	f.router.Use(middleware.Logger)
+	f.router.Use(middleware.Recoverer)
 
 	f.router.Route("/fidus/master", func(router chi.Router) {
 		router.Post("/register", handlers.CreateMaster)
