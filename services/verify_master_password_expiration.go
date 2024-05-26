@@ -1,8 +1,7 @@
 package services
 
 import (
-	"errors"
-
+	"github.com/danilomarques1/fidusserver/apierror"
 	"github.com/danilomarques1/fidusserver/models"
 )
 
@@ -22,11 +21,13 @@ func NewVerifyMasterPasswordExpirationService() VerifyMasterPasswordExpirationSe
 func (v *verifyMasterPasswordExpirationService) Execute(masterId string) error {
 	master, err := v.masterDAO.FindById(masterId)
 	if err != nil {
+		if v.masterDAO.NoMatchError(err) {
+			return apierror.ErrMasterNotFound()
+		}
 		return err
 	}
 	if master.IsPasswordExpired() {
-		// TODO better error
-		return errors.New("Master password has expired and it needs to be reseted")
+		return apierror.ErrPasswordExpired()
 	}
 	return nil
 }

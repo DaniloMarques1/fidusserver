@@ -80,7 +80,7 @@ func VerifyPasswordMasterExpiration(next http.Handler) http.Handler {
 		}
 		verifyPassword := services.NewVerifyMasterPasswordExpirationService()
 		if err := verifyPassword.Execute(masterId); err != nil {
-			response.Json(w, http.StatusConflict, nil)
+			response.Error(w, err)
 			return
 		}
 

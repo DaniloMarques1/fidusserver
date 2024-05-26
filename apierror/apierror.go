@@ -51,3 +51,7 @@ func ErrInvalidKey() error {
 func ErrKeyAlreadyUsed() error {
 	return &apiError{errorMessage: "Key already in use", status: http.StatusBadRequest}
 }
+
+func ErrPasswordExpired() error {
+	return &apiError{errorMessage: "Your password has expired. Please reset.", status: http.StatusConflict}
+}
