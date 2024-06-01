@@ -79,7 +79,7 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	validate := validate.Validate()
 	if err := validate.Struct(body); err != nil {
-		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
+		response.Error(w, apierror.ErrInvalidRequest("Invalid parameters"))
 		return
 	}
 	resetPasswordService := services.NewResetMasterPasswordService()
