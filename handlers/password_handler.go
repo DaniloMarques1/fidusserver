@@ -111,9 +111,10 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, apierror.ErrInvalidRequest(err.Error()))
 		return
 	}
-	validate := validate.Validate()
-	if err := validate.Struct(body); err != nil {
-		response.Error(w, apierror.ErrInvalidRequest("Invalid parameters"))
+	v := validate.Validate()
+	if err := v.Struct(body); err != nil {
+		errMessage := validate.GetValidationErrorMessage(err)
+		response.Error(w, apierror.ErrInvalidRequest(errMessage))
 		return
 	}
 
