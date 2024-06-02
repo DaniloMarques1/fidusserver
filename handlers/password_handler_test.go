@@ -557,3 +557,24 @@ func TestMasterPasswordExpired(t *testing.T) {
 		t.Fatalf("Wrong status code returned expected %v got %v\n", http.StatusConflict, resp.StatusCode)
 	}
 }
+
+func TestStorePasswordInvalidBody(t *testing.T) {
+	defer dropData(t)
+	accessToken, err := createAndAuthenticateMaster()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// create a password
+	input := `{"password":"somepassword"}`
+	req, _ := http.NewRequest(http.MethodPost, baseUrl+"/password/store", bytes.NewReader([]byte(input)))
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Wrong status code returned %v\n", resp.StatusCode)
+	}
+}
